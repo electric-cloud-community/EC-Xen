@@ -1,0 +1,18 @@
+<editor>
+    <help>/commander/pages/@PLUGIN_NAME@/@PLUGIN_KEY@_help?s=Administration&amp;ss=Plugins#CloudManagerShrink</help>
+    <formElement>
+        <type>entry</type>
+        <label>Xen Configuration:</label>
+        <property>xen_config</property>
+        <required>1</required>
+        <documentation>Name of the configuration which holds the connection information for Xen. This must reference a valid
+        existing configuration. (Required)</documentation>
+    </formElement>
+    <formElement>
+        <property>deployments</property>
+        <label>List of Deployments:</label>
+        <documentation>A list of deployments(previously created by CloudManagerGrow) to stop.</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+</editor>

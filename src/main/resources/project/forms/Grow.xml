@@ -1,0 +1,67 @@
+<editor>
+    <help>/commander/pages/@PLUGIN_NAME@/@PLUGIN_KEY@_help?s=Administration&amp;ss=Plugins#CloudManagerGrow</help>
+    <formElement>
+		<label>Xen Configuration:</label>
+        <property>xen_config</property>
+        <value></value>
+        <documentation>The name of the configuration which holds all the connection information for Xen.</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+		<label>VM Template:</label>
+        <property>xen_template</property>
+        <value></value>
+        <documentation>Name of an existing Template in Xen.</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+		<label>Number:</label>
+        <property>number</property>
+        <value></value>
+        <documentation>Number of new servers</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+		<label>VM Name:</label>
+        <property>xen_vmname</property>
+        <value></value>
+        <documentation>Name of the virtual machine to be created.</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+		<label>Network Name:</label>
+        <property>xen_network</property>
+        <value></value>
+        <documentation>Name of the network to be used.</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>                  
+    <formElement>
+		<label>Provision Tag:</label>
+        <property>tag</property>
+        <value>&#36;[jobStepId]</value>
+        <documentation>The unique tag for this provision to keep it separate from other provisions stored in the same location (default is &#36;[jobStepId]).</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement> 
+    <formElement>
+		<label>Workspace:</label>
+        <property>ec_workspace</property>
+        <value></value>
+        <documentation>The ElectricCommander workspace the resource should use.</documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>         
+    <formElement>
+		<label>Resource Pool:</label>
+        <property>poolName</property>
+        <value></value>
+        <documentation>Pool name for resources</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+</editor>

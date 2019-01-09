@@ -1,0 +1,88 @@
+<editor>
+    <help>/commander/pages/@PLUGIN_NAME@/@PLUGIN_KEY@_help?s=Administration&amp;ss=Plugins#Clone</help>
+    <formElement>
+        <label>Xen Configuration:</label>
+        <property>xen_config</property>
+        <value></value>
+        <documentation>Name of the configuration which holds the connection
+        information for Xen. This must reference a valid
+        existing configuration.</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>VM to Clone:</label>
+        <property>xen_original_vmname</property>
+        <value></value>
+        <documentation>Name of the Original Virtual machine to clone.</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>Number Of Clones:</label>
+        <property>xen_number_of_clones</property>
+        <value>1</value>
+        <documentation>Number of virtual machines to clone. If more than one, a suffix (_#) is added to vm names (default is 1).</documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>VM Name:</label>
+        <property>xen_vmname</property>
+        <value></value>
+        <documentation>Name of the new virtual machine to be created.</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>Results Location:</label>
+        <property>ec_properties_location</property>
+        <value></value>
+        <documentation>The ElectricCommander location to store properties (default is /myJob/Xen/vms).</documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>Results tag:</label>
+        <property>tag</property>
+        <value>&#36;[jobStepId]</value>
+        <documentation>The unique tag for this clone to keep it separate from other clones stored in the same location (default is $[jobStepId]).</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>Workspace:</label>
+        <property>ec_workspace</property>
+        <value></value>
+        <documentation>The ElectricCommander workspace the resource should use.</documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>Create Resource?:</label>
+        <property>xen_createresource</property>
+        <value></value>
+        <documentation>Create resources for created VMs?</documentation>
+        <required>1</required>
+        <type>checkbox</type>
+        <checkedValue>1</checkedValue>
+        <uncheckedValue>0</uncheckedValue>
+    </formElement>
+    <formElement>
+        <label>Resource Pool(s):</label>
+        <property>ec_pools</property>
+        <value></value>
+        <documentation>The ElectricCommander resource pool names to be associated with the machines in this configuration if resources are created(Space separated list).</documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>JobStep Timeout:</label>
+        <property>xen_timeout</property>
+        <value></value>
+        <documentation>Timeout for the step execution in minutes. Blank means no timeout.</documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>
+
+</editor>

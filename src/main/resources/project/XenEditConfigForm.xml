@@ -1,0 +1,24 @@
+<editor>
+    <formElement>
+        <type>entry</type>
+        <label>Xen Hostname:</label>
+        <property>xen_server</property>
+        <value></value>
+        <documentation>The Xen server</documentation>
+        <required>1</required>
+    </formElement>
+    <formElement>
+        <type>credential</type>
+        <label>Login as:</label>
+        <property>credential</property>
+        <value></value>
+        <required>1</required>
+    </formElement>
+		<formElement>
+        <type>entry</type>
+        <label>Debug Level:</label>
+        <property>debug</property>
+        <value></value>
+        <required>1</required>
+    </formElement>
+</editor>

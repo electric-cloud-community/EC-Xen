@@ -1,0 +1,48 @@
+<editor>
+    <help>/commander/pages/@PLUGIN_NAME@/@PLUGIN_KEY@_help?s=Administration&amp;ss=Plugins#Shutdown</help>
+    <formElement>
+        <label>Xen Configuration:</label>
+        <property>xen_config</property>
+        <value></value>
+        <documentation>Name of the configuration which holds the connection
+        information for Xen. This must reference a valid
+        existing configuration.</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>Number Of Machines:</label>
+        <property>xen_number_of_vms</property>
+        <value>1</value>
+        <documentation>Number of virtual machines to shutdown. If more than one, a suffix (_#) is added to vm names (default is 1).</documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>    
+    <formElement>
+        <label>VM Name:</label>
+        <property>xen_vmname</property>
+        <value></value>
+        <documentation>Name of the virtual machine to shutdown.</documentation>
+        <required>1</required>
+        <type>entry</type>
+    </formElement>
+    <formElement>
+        <label>Hard Shutdown?:</label>
+        <property>xen_hard_shutdown</property>
+        <value></value>
+        <documentation>Stop executing the specified VM without attempting a clean shutdown. Then perform
+poweroff action.</documentation>
+        <required>1</required>
+        <type>checkbox</type>
+        <checkedValue>1</checkedValue>
+        <uncheckedValue>0</uncheckedValue>
+    </formElement>
+    <formElement>
+        <label>JobStep Timeout:</label>
+        <property>xen_timeout</property>
+        <value></value>
+        <documentation>Timeout for the step execution in minutes. Blank means no timeout.</documentation>
+        <required>0</required>
+        <type>entry</type>
+    </formElement>
+</editor>

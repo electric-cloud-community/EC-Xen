@@ -1,0 +1,1099 @@
+# -*-Perl-*-
+
+###############################
+# xen.ntest -
+#
+# System tests for EC-Xen plugin
+#
+# Copyright (c) 2005-2011 Electric Cloud, Inc.
+# All rights reserved
+###############################
+
+use strict;
+use warnings;
+use ECTest;
+
+# read in setup and tests that are common to all plugins
+require "$::gTestFileDir/../../EC-Xen/systemtest/ntest.common";
+
+$::gProjectImported = 0;
+$::gConfigCreated   = 0;
+$::gServerRunning   = 0;
+$::gtestProjectName = 'XenTest';
+$::gRunTest         = 0;
+#$::opts;
+
+sub importProject() {
+    assertOK($::N->import({ file => "$::gTestFileDir/XenTest.xml", path => '/projects/XenTest', force => 1 }), 'import XenTest project');
+
+    assertOK($::N->getProcedure($::gtestProjectName, 'Provision'),            "Provision procedure exists");
+    assertOK($::N->getProcedure($::gtestProjectName, 'Cleanup'),              "Cleanup procedure exists");
+    assertOK($::N->getProcedure($::gtestProjectName, 'Clone'),                "Clone procedure exists");
+    assertOK($::N->getProcedure($::gtestProjectName, 'CreateResourceFromVM'), "CreateResourceFromVM procedure exists");
+    assertOK($::N->getProcedure($::gtestProjectName, 'Destroy'),              "Destroy procedure exists");
+    assertOK($::N->getProcedure($::gtestProjectName, 'Start'),                "Start procedure exists");
+    assertOK($::N->getProcedure($::gtestProjectName, 'Pause'),                "Pause procedure exists");
+    assertOK($::N->getProcedure($::gtestProjectName, 'Unpause'),              "Unpause procedure exists");
+    assertOK($::N->getProcedure($::gtestProjectName, 'Suspend'),              "Suspend procedure exists");
+    assertOK($::N->getProcedure($::gtestProjectName, 'Resume'),               "Resume procedure exists");
+    assertOK($::N->getProcedure($::gtestProjectName, 'Shutdown'),             "Shutdown procedure exists");
+    assertOK($::N->getProcedure($::gtestProjectName, 'Reboot'),               "Reboot procedure exists");
+
+    $::gProjectImported = 1;
+}
+
+sub doSetup() {
+    if (!$::gProjectImported) {
+        importProject();
+    }
+}
+
+################################
+# check-components-present - Check that the plugin contains required components
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "check-components-present", {}, sub {
+
+    # Check that the plugin contains required components
+    my $xpath;
+    $xpath = $::N->getSteps("$::gPlugin_name", "Provision");
+    assertOK($xpath, "Provision");
+    assertEq("SetTimelimit", $xpath->findvalue("//step[1]/stepName"), "step 1 is SetTimelimit");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Provision");
+    assertOK($xpath, "Provision");
+    assertEq("Provision", $xpath->findvalue("//step[2]/stepName"), "step 2 is Provision");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "CreateResourceFromVM");
+    assertOK($xpath, "CreateResourceFromVM");
+    assertEq("SetTimelimit", $xpath->findvalue("//step[1]/stepName"), "step 1 is SetTimelimit");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "CreateResourceFromVM");
+    assertOK($xpath, "CreateResourceFromVM");
+    assertEq("CreateResourceFromVM", $xpath->findvalue("//step[2]/stepName"), "step 2 is CreateResourceFromVM");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Clone");
+    assertOK($xpath, "Clone");
+    assertEq("SetTimelimit", $xpath->findvalue("//step[1]/stepName"), "step 1 is SetTimelimit");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Clone");
+    assertOK($xpath, "Clone");
+    assertEq("Clone", $xpath->findvalue("//step[2]/stepName"), "step 2 is Clone");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Destroy");
+    assertOK($xpath, "Destroy");
+    assertEq("SetTimelimit", $xpath->findvalue("//step[1]/stepName"), "step 1 is SetTimelimit");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Destroy");
+    assertOK($xpath, "Destroy");
+    assertEq("Destroy", $xpath->findvalue("//step[2]/stepName"), "step 2 is Destroy");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Start");
+    assertOK($xpath, "Start");
+    assertEq("SetTimelimit", $xpath->findvalue("//step[1]/stepName"), "step 1 is SetTimelimit");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Start");
+    assertOK($xpath, "Start");
+    assertEq("Start", $xpath->findvalue("//step[2]/stepName"), "step 2 is Start");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Pause");
+    assertOK($xpath, "Pause");
+    assertEq("SetTimelimit", $xpath->findvalue("//step[1]/stepName"), "step 1 is SetTimelimit");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Pause");
+    assertOK($xpath, "Pause");
+    assertEq("Pause", $xpath->findvalue("//step[2]/stepName"), "step 2 is Pause");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Unpause");
+    assertOK($xpath, "Unpause");
+    assertEq("SetTimelimit", $xpath->findvalue("//step[1]/stepName"), "step 1 is SetTimelimit");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Unpause");
+    assertOK($xpath, "Unpause");
+    assertEq("Unpause", $xpath->findvalue("//step[2]/stepName"), "step 2 is Unpause");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Suspend");
+    assertOK($xpath, "Suspend");
+    assertEq("SetTimelimit", $xpath->findvalue("//step[1]/stepName"), "step 1 is SetTimelimit");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Suspend");
+    assertOK($xpath, "Suspend");
+    assertEq("Suspend", $xpath->findvalue("//step[2]/stepName"), "step 2 is Suspend");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Resume");
+    assertOK($xpath, "Resume");
+    assertEq("SetTimelimit", $xpath->findvalue("//step[1]/stepName"), "step 1 is SetTimelimit");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Resume");
+    assertOK($xpath, "Resume");
+    assertEq("Resume", $xpath->findvalue("//step[2]/stepName"), "step 2 is Resume");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Shutdown");
+    assertOK($xpath, "Shutdown");
+    assertEq("SetTimelimit", $xpath->findvalue("//step[1]/stepName"), "step 1 is SetTimelimit");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Shutdown");
+    assertOK($xpath, "Shutdown");
+    assertEq("Shutdown", $xpath->findvalue("//step[2]/stepName"), "step 2 is Shutdown");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Reboot");
+    assertOK($xpath, "Reboot");
+    assertEq("SetTimelimit", $xpath->findvalue("//step[1]/stepName"), "step 1 is SetTimelimit");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Reboot");
+    assertOK($xpath, "Reboot");
+    assertEq("Reboot", $xpath->findvalue("//step[2]/stepName"), "step 2 is Reboot");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Cleanup");
+    assertOK($xpath, "Cleanup");
+    assertEq("SetTimelimit", $xpath->findvalue("//step[1]/stepName"), "step 1 is SetTimelimit");
+
+    $xpath = $::N->getSteps("$::gPlugin_name", "Cleanup");
+    assertOK($xpath, "Cleanup");
+    assertEq("Cleanup", $xpath->findvalue("//step[2]/stepName"), "step 2 is Cleanup");
+
+};
+
+################################
+# Eval Xen Driver - Test loading Xen driver
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "Eval Xen Driver", {}, sub {
+    use ElectricCommander::PropMod;
+
+    # Load perl code from running Commander
+    ElectricCommander::PropMod::loadPerlCodeFromProperty($::N, "/projects/$::gPlugin_name/xen_driver/Xen");
+    my $gd = new Xen();
+};
+
+################################
+# setup-create configuration - Test creating a configuration
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "setup-create configuration", {}, sub {
+    my $xpath = $::N->runProcedure(
+                                   "$::gPlugin_name",
+                                   {
+                                      procedureName   => "CreateConfiguration",
+                                      pollInterval    => '0.2',
+                                      timeout         => 600,
+                                      actualParameter => [
+                                      { actualParameterName => 'config', value => "test" }, 
+                                      { actualParameterName => 'xen_server', value => "https://localhost" }, 
+                                      { actualParameterName => 'credential', value => "test" },
+                                      { actualParameterName => 'debug', value => "10" },],
+                                      credential => [
+                                      { credentialName => 'test', userName => "qa", password => "qa"},],
+                                   }
+                                  );
+
+    assertOK($xpath, "run create configuration procedure");
+
+    # make sure it finished
+    my $jobId  = 0;
+    my $status = q{};
+    assertDef($xpath, "runProcedure finished without a timeout");
+    if ($xpath) {
+        $jobId  = $xpath->findvalue("//jobId");
+        $status = $xpath->findvalue("//status");
+
+        assertTrue($jobId && $jobId ne "",'valid job id');
+        assertEq('completed', $status, "job $jobId complete");
+
+        #abort if job did not finish
+        if ($status ne "completed") {
+            assertOK($::N->abortJob($jobId, { force => 1 }));
+        }
+    }
+
+    # examine log files
+    $xpath = $::N->getJobDetails($jobId);
+
+    writeFile("$::gCurrentTestDir/createConfiguration.log", "====Job Details====\n$xpath->{_xml}\n");
+
+    # check that the config and credential exist
+    $xpath = $::N->getProperty("/projects/$::gPlugin_name/xen_cfgs/test/xen_server");
+    assertEq("https://localhost", $xpath->findvalue("//value")->string_value, "Server name");
+    $xpath = $::N->getCredential("$::gPlugin_name", "test");
+    assertEq("qa", $xpath->findvalue("//userName")->string_value, 'Credential user');
+
+    $::gConfigCreated = 1;
+};
+
+################################
+#  Provision - Provision a virtual machine
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "test Provision successful", {}, sub {
+    doSetup();
+
+    #Get parameters
+    my $xpath = $::N->getActualParameters(
+                                          {
+                                            "projectName"   => $::gtestProjectName,
+                                            "procedureName" => "Provision",
+                                            "stepName"      => "Provision"
+                                          }
+                                         );
+
+    my $nodeset = $xpath->find('//actualParameter');
+    foreach my $node ($nodeset->get_nodelist) {
+        $::opts->{ $node->findvalue('actualParameterName') } = $node->findvalue('value');
+    }
+
+    # $::opts->{xen_config}             = $xpath->findvalue("//xen_config");
+    # $::opts->{xen_number_of_vms}      = $xpath->findvalue("//xen_number_of_vms");
+    # $::opts->{xen_template}           = $xpath->findvalue("//xen_template");
+    # $::opts->{xen_storage_repository} = $xpath->findvalue("//xen_storage_repository");
+    # $::opts->{xen_disk_name}          = $xpath->findvalue("//xen_disk_name");
+    # $::opts->{xen_size}               = $xpath->findvalue("//xen_size");
+    # $::opts->{xen_network}            = $xpath->findvalue("//xen_network");
+    # $::opts->{xen_vmname}             = $xpath->findvalue("//xen_vmname");
+    # $::opts->{ec_pools}               = $xpath->findvalue("//ec_pools");
+    # $::opts->{ec_workspace}           = $xpath->findvalue("//ec_workspace");
+    # $::opts->{ec_properties_location} = $xpath->findvalue("//ec_properties_location");
+    # $::opts->{tag}                    = $xpath->findvalue("//tag");
+    # $::opts->{xen_createresource}     = $xpath->findvalue("//xen_createresource");
+
+    # Read the log file and verify its contents.
+    my $data = runFakeProvision();
+
+    writeFile("$::gCurrentTestDir/Provision.log", "====Job Details====\n====LOG====\n$data\n");
+
+    my $expectedOutput = q{};
+    $expectedOutput .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $expectedOutput .= "Loading config 'XenTestConfig'\n";
+    $expectedOutput .= "Adding config xen_server = 'http://Xen/'\n";
+    $expectedOutput .= "Adding config credential = 'test'\n";
+    $expectedOutput .= "----------------------------------------------------------------------------------------------------\n";
+    $expectedOutput .= "Instantiating the template '" . $::opts->{xen_template} . "' to create VM\n";
+    $expectedOutput .= "New VM created with name: " . $::opts->{xen_vmname} . "\n";
+    $expectedOutput .= "Creating VIF for VM '" . $::opts->{xen_vmname} . "'\n";
+    $expectedOutput .= "Starting VM '" . $::opts->{xen_vmname} . "'...\n";
+    $expectedOutput .= "Successfully provisioned virtual machine '" . $::opts->{xen_vmname} . "\n";
+
+    assertDiff(outdent($expectedOutput), $data, 'Provision successful output');
+
+};
+
+################################
+# runFakeProvision - Create fake output for Provision
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+sub runFakeProvision {
+
+    my $log = q{};
+
+    $log .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $log .= "Loading config 'XenTestConfig'\n";
+    $log .= "Adding config xen_server = 'http://Xen/'\n";
+    $log .= "Adding config credential = 'test'\n";
+    $log .= "----------------------------------------------------------------------------------------------------\n";
+    $log .= "Instantiating the template '" . $::opts->{xen_template} . "' to create VM\n";
+    $log .= "New VM created with name: " . $::opts->{xen_vmname} . "\n";
+    $log .= "Creating VIF for VM '" . $::opts->{xen_vmname} . "'\n";
+    $log .= "Starting VM '" . $::opts->{xen_vmname} . "'...\n";
+    $log .= "Successfully provisioned virtual machine '" . $::opts->{xen_vmname} . "\n";
+
+    return $log;
+}
+
+################################
+#  Cleanup - Cleanup a virtual machine
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "test Cleanup successful", {}, sub {
+
+    #Get parameters
+    my $xpath = $::N->getActualParameters(
+                                          {
+                                            "projectName"   => $::gtestProjectName,
+                                            "procedureName" => "Cleanup",
+                                            "stepName"      => "Cleanup"
+                                          }
+                                         );
+
+    my $nodeset = $xpath->find('//actualParameter');
+    foreach my $node ($nodeset->get_nodelist) {
+        $::opts->{ $node->findvalue('actualParameterName') } = $node->findvalue('value');
+    }
+
+    # Read the log file and verify its contents.
+    my $data = runFakeCleanup();
+
+    writeFile("$::gCurrentTestDir/Cleanup.log", "====Job Details====\n====LOG====\n$data\n");
+
+    my $expectedOutput = q{};
+    $expectedOutput .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $expectedOutput .= "Loading config 'XenTestConfig'\n";
+    $expectedOutput .= "Adding config xen_server = 'http://Xen/'\n";
+    $expectedOutput .= "Adding config credential = 'test'\n";
+    $expectedOutput .= "----------------------------------------------------------------------------------------------------\n";
+    $expectedOutput .= "Cleaning up resources\n";
+    $expectedOutput .= "Deleting resource: 'Xen_" . $::opts->{xen_vmname} . "'\n";
+    $expectedOutput .= "Resource deleted\n";
+    $expectedOutput .= "VM successfully destroyed\n";
+    $expectedOutput .= "Successfully cleanup virtual machine '" . $::opts->{xen_vmname} . "'\n";
+
+    assertDiff(outdent($expectedOutput), $data, 'Cleanup successful output');
+
+};
+
+################################
+# runFakeCleanup - Create fake output for Cleanup
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+sub runFakeCleanup {
+
+    my $log = q{};
+
+    $log .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $log .= "Loading config 'XenTestConfig'\n";
+    $log .= "Adding config xen_server = 'http://Xen/'\n";
+    $log .= "Adding config credential = 'test'\n";
+    $log .= "----------------------------------------------------------------------------------------------------\n";
+    $log .= "Cleaning up resources\n";
+    $log .= "Deleting resource: 'Xen_" . $::opts->{xen_vmname} . "'\n";
+    $log .= "Resource deleted\n";
+    $log .= "VM successfully destroyed\n";
+    $log .= "Successfully cleanup virtual machine '" . $::opts->{xen_vmname} . "'\n";
+
+    return $log;
+}
+
+################################
+#  Clone - Clone a virtual machine
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "test Clone successful", {}, sub {
+
+    #Get parameters
+    my $xpath = $::N->getActualParameters(
+                                          {
+                                            "projectName"   => $::gtestProjectName,
+                                            "procedureName" => "Clone",
+                                            "stepName"      => "Clone"
+                                          }
+                                         );
+
+    my $nodeset = $xpath->find('//actualParameter');
+    foreach my $node ($nodeset->get_nodelist) {
+        $::opts->{ $node->findvalue('actualParameterName') } = $node->findvalue('value');
+    }
+
+    # Read the log file and verify its contents.
+    my $data = runFakeClone();
+
+    writeFile("$::gCurrentTestDir/Clone.log", "====Job Details====\n====LOG====\n$data\n");
+
+    my $expectedOutput = q{};
+
+    $expectedOutput .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $expectedOutput .= "Loading config 'XenTestConfig'\n";
+    $expectedOutput .= "Adding config xen_server = 'http://Xen/'\n";
+    $expectedOutput .= "Adding config credential = 'test'\n";
+    $expectedOutput .= "----------------------------------------------------------------------------------------------------\n";
+    $expectedOutput .= "Cloning VM '" . $::opts->{xen_original_vmname} . "'...\n";
+    $expectedOutput .= "Starting VM '" . $::opts->{xen_vmname} . "'...\n";
+    $expectedOutput .= "VM successfully started.\n";
+    $expectedOutput .= "Starting VM '" . $::opts->{xen_original_vmname} . "'...\n";
+    $expectedOutput .= "VM successfully started.\n";
+    $expectedOutput .= "Successfully cloned virtual machine '" . $::opts->{xen_vmname} . "'\n";
+
+    assertDiff(outdent($expectedOutput), $data, 'Clone successful output');
+
+};
+
+################################
+# runFakeClone - Create fake output for Clone
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+sub runFakeClone {
+
+    my $log = q{};
+
+    $log .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $log .= "Loading config 'XenTestConfig'\n";
+    $log .= "Adding config xen_server = 'http://Xen/'\n";
+    $log .= "Adding config credential = 'test'\n";
+    $log .= "----------------------------------------------------------------------------------------------------\n";
+    $log .= "Cloning VM '" . $::opts->{xen_original_vmname} . "'...\n";
+    $log .= "Starting VM '" . $::opts->{xen_vmname} . "'...\n";
+    $log .= "VM successfully started.\n";
+    $log .= "Starting VM '" . $::opts->{xen_original_vmname} . "'...\n";
+    $log .= "VM successfully started.\n";
+    $log .= "Successfully cloned virtual machine '" . $::opts->{xen_vmname} . "'\n";
+
+    return $log;
+}
+
+################################
+#  CreateResourceFromVM - create a resource for a virtual machine
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "test CreateResourceFromVM successful", {}, sub {
+
+    #Get parameters
+    my $xpath = $::N->getActualParameters(
+                                          {
+                                            "projectName"   => $::gtestProjectName,
+                                            "procedureName" => "CreateResourceFromVM",
+                                            "stepName"      => "CreateResourceFromVM"
+                                          }
+                                         );
+
+    my $nodeset = $xpath->find('//actualParameter');
+    foreach my $node ($nodeset->get_nodelist) {
+        $::opts->{ $node->findvalue('actualParameterName') } = $node->findvalue('value');
+    }
+
+    # Read the log file and verify its contents.
+    my $data = runFakeCreateResourceFromVM();
+
+    writeFile("$::gCurrentTestDir/CreateResourceFromVM.log", "====Job Details====\n====LOG====\n$data\n");
+
+    my $expectedOutput = q{};
+
+    $expectedOutput .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $expectedOutput .= "Loading config 'XenTestConfig'\n";
+    $expectedOutput .= "Adding config xen_server = 'http://Xen/'\n";
+    $expectedOutput .= "Adding config credential = 'test'\n";
+    $expectedOutput .= "----------------------------------------------------------------------------------------------------\n";
+    $expectedOutput .= " Getting information of virtual machine ... \n";
+    $expectedOutput .= " Storing properties ... \n";
+    $expectedOutput .= " Creating resource for virtual machine '" . $::opts->{xen_vmname} . "'...\n";
+    $expectedOutput .= "Resource created\n";
+    $expectedOutput .= "Waiting for ping response #100 of resource 'Xen_'" . $::opts->{xen_vmname} . "'";
+    $expectedOutput .= "Ping response succesfully received\n";
+
+    assertDiff(outdent($expectedOutput), $data, 'CreateResourceFromVM successful output');
+
+};
+
+################################
+# runFakeCreateResourceFromVM - Create fake output for CreateResourceFromVM
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+sub runFakeCreateResourceFromVM {
+
+    my $log = q{};
+
+    $log .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $log .= "Loading config 'XenTestConfig'\n";
+    $log .= "Adding config xen_server = 'http://Xen/'\n";
+    $log .= "Adding config credential = 'test'\n";
+    $log .= "----------------------------------------------------------------------------------------------------\n";
+    $log .= " Getting information of virtual machine ... \n";
+    $log .= " Storing properties ... \n";
+    $log .= " Creating resource for virtual machine '" . $::opts->{xen_vmname} . "'...\n";
+    $log .= "Resource created\n";
+    $log .= "Waiting for ping response #100 of resource 'Xen_'" . $::opts->{xen_vmname} . "'";
+    $log .= "Ping response succesfully received\n";
+
+    return $log;
+}
+
+################################
+#  Destroy - Destroy a virtual machine
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "test Destroy successful", {}, sub {
+
+    #Get parameters
+    my $xpath = $::N->getActualParameters(
+                                          {
+                                            "projectName"   => $::gtestProjectName,
+                                            "procedureName" => "Destroy",
+                                            "stepName"      => "Destroy"
+                                          }
+                                         );
+
+    my $nodeset = $xpath->find('//actualParameter');
+    foreach my $node ($nodeset->get_nodelist) {
+        $::opts->{ $node->findvalue('actualParameterName') } = $node->findvalue('value');
+    }
+
+    # Read the log file and verify its contents.
+    my $data = runFakeDestroy();
+
+    writeFile("$::gCurrentTestDir/Destroy.log", "====Job Details====\n====LOG====\n$data\n");
+
+    my $expectedOutput = q{};
+    $expectedOutput .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $expectedOutput .= "Loading config 'XenTestConfig'\n";
+    $expectedOutput .= "Adding config xen_server = 'http://Xen/'\n";
+    $expectedOutput .= "Adding config credential = 'test'\n";
+    $expectedOutput .= "----------------------------------------------------------------------------------------------------\n";
+    $expectedOutput .= "Destroying VM '" . $::opts->{xen_vmname} . "'...\n";
+    $expectedOutput .= "VM successfully destroyed.\n";
+
+    assertDiff(outdent($expectedOutput), $data, 'Destroy successful output');
+
+};
+
+################################
+# runFakeDestroy - Create fake output for Destroy
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+sub runFakeDestroy {
+
+    my $log = q{};
+    $log .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $log .= "Loading config 'XenTestConfig'\n";
+    $log .= "Adding config xen_server = 'http://Xen/'\n";
+    $log .= "Adding config credential = 'test'\n";
+    $log .= "----------------------------------------------------------------------------------------------------\n";
+    $log .= "Destroying VM '" . $::opts->{xen_vmname} . "'...\n";
+    $log .= "VM successfully destroyed.\n";
+    return $log;
+}
+
+################################
+#  Start - Start a virtual machine
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "test Start successful", {}, sub {
+
+    #Get parameters
+    my $xpath = $::N->getActualParameters(
+                                          {
+                                            "projectName"   => $::gtestProjectName,
+                                            "procedureName" => "Start",
+                                            "stepName"      => "Start"
+                                          }
+                                         );
+
+    my $nodeset = $xpath->find('//actualParameter');
+    foreach my $node ($nodeset->get_nodelist) {
+        $::opts->{ $node->findvalue('actualParameterName') } = $node->findvalue('value');
+    }
+
+    # Read the log file and verify its contents.
+    my $data = runFakeStart();
+
+    writeFile("$::gCurrentTestDir/Start.log", "====Job Details====\n====LOG====\n$data\n");
+
+    my $expectedOutput = q{};
+    $expectedOutput .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $expectedOutput .= "Loading config 'XenTestConfig'\n";
+    $expectedOutput .= "Adding config xen_server = 'http://Xen/'\n";
+    $expectedOutput .= "Adding config credential = 'test'\n";
+    $expectedOutput .= "----------------------------------------------------------------------------------------------------\n";
+    $expectedOutput .= "Starting VM '" . $::opts->{xen_vmname} . "'...\n";
+    $expectedOutput .= "VM successfully started.\n";
+
+    assertDiff(outdent($expectedOutput), $data, 'Start successful output');
+
+};
+
+################################
+# runFakeStart - Create fake output for Start
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+sub runFakeStart {
+
+    my $log = q{};
+    $log .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $log .= "Loading config 'XenTestConfig'\n";
+    $log .= "Adding config xen_server = 'http://Xen/'\n";
+    $log .= "Adding config credential = 'test'\n";
+    $log .= "----------------------------------------------------------------------------------------------------\n";
+    $log .= "Starting VM '" . $::opts->{xen_vmname} . "'...\n";
+    $log .= "VM successfully started.\n";
+    return $log;
+}
+
+################################
+#  Pause - Pause a virtual machine
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "test Pause successful", {}, sub {
+
+    #Get parameters
+    my $xpath = $::N->getActualParameters(
+                                          {
+                                            "projectName"   => $::gtestProjectName,
+                                            "procedureName" => "Pause",
+                                            "stepName"      => "Pause"
+                                          }
+                                         );
+
+    my $nodeset = $xpath->find('//actualParameter');
+    foreach my $node ($nodeset->get_nodelist) {
+        $::opts->{ $node->findvalue('actualParameterName') } = $node->findvalue('value');
+    }
+
+    # Read the log file and verify its contents.
+    my $data = runFakePause();
+
+    writeFile("$::gCurrentTestDir/Pause.log", "====Job Details====\n====LOG====\n$data\n");
+
+    my $expectedOutput = q{};
+    $expectedOutput .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $expectedOutput .= "Loading config 'XenTestConfig'\n";
+    $expectedOutput .= "Adding config xen_server = 'http://Xen/'\n";
+    $expectedOutput .= "Adding config credential = 'test'\n";
+    $expectedOutput .= "----------------------------------------------------------------------------------------------------\n";
+    $expectedOutput .= "Pausing VM '" . $::opts->{xen_vmname} . "'...\n";
+    $expectedOutput .= "VM successfully paused.\n";
+
+    assertDiff(outdent($expectedOutput), $data, 'Pause successful output');
+
+};
+
+################################
+# runFakePause - Create fake output for Pause
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+sub runFakePause {
+
+    my $log = q{};
+    $log .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $log .= "Loading config 'XenTestConfig'\n";
+    $log .= "Adding config xen_server = 'http://Xen/'\n";
+    $log .= "Adding config credential = 'test'\n";
+    $log .= "----------------------------------------------------------------------------------------------------\n";
+    $log .= "Pausing VM '" . $::opts->{xen_vmname} . "'...\n";
+    $log .= "VM successfully paused.\n";
+    return $log;
+}
+
+################################
+#  Unpause - Unpause a virtual machine
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "test Unpause successful", {}, sub {
+
+    #Get parameters
+    my $xpath = $::N->getActualParameters(
+                                          {
+                                            "projectName"   => $::gtestProjectName,
+                                            "procedureName" => "Unpause",
+                                            "stepName"      => "Unpause"
+                                          }
+                                         );
+
+    my $nodeset = $xpath->find('//actualParameter');
+    foreach my $node ($nodeset->get_nodelist) {
+        $::opts->{ $node->findvalue('actualParameterName') } = $node->findvalue('value');
+    }
+
+    # Read the log file and verify its contents.
+    my $data = runFakeUnpause();
+
+    writeFile("$::gCurrentTestDir/Unpause.log", "====Job Details====\n====LOG====\n$data\n");
+
+    my $expectedOutput = q{};
+
+    $expectedOutput .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $expectedOutput .= "Loading config 'XenTestConfig'\n";
+    $expectedOutput .= "Adding config xen_server = 'http://Xen/'\n";
+    $expectedOutput .= "Adding config credential = 'test'\n";
+    $expectedOutput .= "----------------------------------------------------------------------------------------------------\n";
+    $expectedOutput .= "Unpausing VM '" . $::opts->{xen_vmname} . "'...\n";
+    $expectedOutput .= "VM successfully unpaused.\n";
+
+    assertDiff(outdent($expectedOutput), $data, 'Unpause successful output');
+
+};
+
+################################
+# runFakeUnpause - Create fake output for Unpause
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+sub runFakeUnpause {
+
+    my $log = q{};
+    $log .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $log .= "Loading config 'XenTestConfig'\n";
+    $log .= "Adding config xen_server = 'http://Xen/'\n";
+    $log .= "Adding config credential = 'test'\n";
+    $log .= "----------------------------------------------------------------------------------------------------\n";
+    $log .= "Unpausing VM '" . $::opts->{xen_vmname} . "'...\n";
+    $log .= "VM successfully unpaused.\n";
+    return $log;
+}
+
+################################
+#  Suspend - Suspend a virtual machine
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "test Suspend successful", {}, sub {
+
+    #Get parameters
+    my $xpath = $::N->getActualParameters(
+                                          {
+                                            "projectName"   => $::gtestProjectName,
+                                            "procedureName" => "Suspend",
+                                            "stepName"      => "Suspend"
+                                          }
+                                         );
+
+    my $nodeset = $xpath->find('//actualParameter');
+    foreach my $node ($nodeset->get_nodelist) {
+        $::opts->{ $node->findvalue('actualParameterName') } = $node->findvalue('value');
+    }
+
+    # Read the log file and verify its contents.
+    my $data = runFakeSuspend();
+
+    writeFile("$::gCurrentTestDir/Suspend.log", "====Job Details====\n====LOG====\n$data\n");
+
+    my $expectedOutput = q{};
+    $expectedOutput .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $expectedOutput .= "Loading config 'XenTestConfig'\n";
+    $expectedOutput .= "Adding config xen_server = 'http://Xen/'\n";
+    $expectedOutput .= "Adding config credential = 'test'\n";
+    $expectedOutput .= "----------------------------------------------------------------------------------------------------\n";
+    $expectedOutput .= "Suspending VM '" . $::opts->{xen_vmname} . "'...\n";
+    $expectedOutput .= "VM successfully suspended.\n";
+
+    assertDiff(outdent($expectedOutput), $data, 'Suspend successful output');
+
+};
+
+################################
+# runFakeSuspend - Create fake output for Suspend
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+sub runFakeSuspend {
+
+    my $log = q{};
+    $log .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $log .= "Loading config 'XenTestConfig'\n";
+    $log .= "Adding config xen_server = 'http://Xen/'\n";
+    $log .= "Adding config credential = 'test'\n";
+    $log .= "----------------------------------------------------------------------------------------------------\n";
+    $log .= "Suspending VM '" . $::opts->{xen_vmname} . "'...\n";
+    $log .= "VM successfully suspended.\n";
+    return $log;
+}
+
+################################
+#  Resume - Resume a virtual machine
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "test Resume successful", {}, sub {
+
+    #Get parameters
+    my $xpath = $::N->getActualParameters(
+                                          {
+                                            "projectName"   => $::gtestProjectName,
+                                            "procedureName" => "Resume",
+                                            "stepName"      => "Resume"
+                                          }
+                                         );
+
+    my $nodeset = $xpath->find('//actualParameter');
+    foreach my $node ($nodeset->get_nodelist) {
+        $::opts->{ $node->findvalue('actualParameterName') } = $node->findvalue('value');
+    }
+
+    # Read the log file and verify its contents.
+    my $data = runFakeResume();
+
+    writeFile("$::gCurrentTestDir/Resume.log", "====Job Details====\n====LOG====\n$data\n");
+
+    my $expectedOutput = q{};
+    $expectedOutput .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $expectedOutput .= "Loading config 'XenTestConfig'\n";
+    $expectedOutput .= "Adding config xen_server = 'http://Xen/'\n";
+    $expectedOutput .= "Adding config credential = 'test'\n";
+    $expectedOutput .= "----------------------------------------------------------------------------------------------------\n";
+    $expectedOutput .= "Resuming VM '" . $::opts->{xen_vmname} . "'...\n";
+    $expectedOutput .= "VM successfully resumed.\n";
+
+    assertDiff(outdent($expectedOutput), $data, 'Resume successful output');
+
+};
+
+################################
+# runFakeResume - Create fake output for Resume
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+sub runFakeResume {
+
+    my $log = q{};
+    $log .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $log .= "Loading config 'XenTestConfig'\n";
+    $log .= "Adding config xen_server = 'http://Xen/'\n";
+    $log .= "Adding config credential = 'test'\n";
+    $log .= "----------------------------------------------------------------------------------------------------\n";
+    $log .= "Resuming VM '" . $::opts->{xen_vmname} . "'...\n";
+    $log .= "VM successfully resumed.\n";
+    return $log;
+}
+
+################################
+#  Shutdown - Shutdown a virtual machine
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "test Shutdown successful", {}, sub {
+
+    #Get parameters
+    my $xpath = $::N->getActualParameters(
+                                          {
+                                            "projectName"   => $::gtestProjectName,
+                                            "procedureName" => "Shutdown",
+                                            "stepName"      => "Shutdown"
+                                          }
+                                         );
+
+    my $nodeset = $xpath->find('//actualParameter');
+    foreach my $node ($nodeset->get_nodelist) {
+        $::opts->{ $node->findvalue('actualParameterName') } = $node->findvalue('value');
+    }
+
+    # Read the log file and verify its contents.
+    my $data = runFakeShutdown();
+
+    writeFile("$::gCurrentTestDir/Shutdown.log", "====Job Details====\n====LOG====\n$data\n");
+
+    my $expectedOutput = q{};
+    $expectedOutput .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $expectedOutput .= "Loading config 'XenTestConfig'\n";
+    $expectedOutput .= "Adding config xen_server = 'http://Xen/'\n";
+    $expectedOutput .= "Adding config credential = 'test'\n";
+    $expectedOutput .= "----------------------------------------------------------------------------------------------------\n";
+    $expectedOutput .= "Shutting down VM '" . $::opts->{xen_vmname} . "'...\n";
+    $expectedOutput .= "VM successfully shutdown.\n";
+
+    assertDiff(outdent($expectedOutput), $data, 'Shutdown successful output');
+
+};
+
+################################
+# runFakeShutdown - Create fake output for Shutdown
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+sub runFakeShutdown {
+
+    my $log = q{};
+    $log .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $log .= "Loading config 'XenTestConfig'\n";
+    $log .= "Adding config xen_server = 'http://Xen/'\n";
+    $log .= "Adding config credential = 'test'\n";
+    $log .= "----------------------------------------------------------------------------------------------------\n";
+    $log .= "Shutting down VM '" . $::opts->{xen_vmname} . "'...\n";
+    $log .= "VM successfully shutdown.\n";
+    return $log;
+}
+
+################################
+#  Reboot - Reboot a virtual machine
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+ntest "test Reboot successful", {}, sub {
+
+    #Get parameters
+    my $xpath = $::N->getActualParameters(
+                                          {
+                                            "projectName"   => $::gtestProjectName,
+                                            "procedureName" => "Reboot",
+                                            "stepName"      => "Reboot"
+                                          }
+                                         );
+
+    my $nodeset = $xpath->find('//actualParameter');
+    foreach my $node ($nodeset->get_nodelist) {
+        $::opts->{ $node->findvalue('actualParameterName') } = $node->findvalue('value');
+    }
+
+    # Read the log file and verify its contents.
+    my $data = runFakeReboot();
+
+    writeFile("$::gCurrentTestDir/Reboot.log", "====Job Details====\n====LOG====\n$data\n");
+
+    my $expectedOutput = q{};
+    $expectedOutput .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $expectedOutput .= "Loading config 'XenTestConfig'\n";
+    $expectedOutput .= "Adding config xen_server = 'http://Xen/'\n";
+    $expectedOutput .= "Adding config credential = 'test'\n";
+    $expectedOutput .= "----------------------------------------------------------------------------------------------------\n";
+    $expectedOutput .= "Rebooting VM '" . $::opts->{xen_vmname} . "'...\n";
+    $expectedOutput .= "VM successfully rebooted.\n";
+
+    assertDiff(outdent($expectedOutput), $data, 'Reboot successful output');
+
+};
+
+################################
+# runFakeReboot - Create fake output for Reboot
+#
+# Arguments:
+#   none
+#
+# Returns:
+#   none
+#
+################################
+sub runFakeReboot {
+
+    my $log = q{};
+    $log .= "Using plugin EC-Xen version " . $::gPlugin_ver . "\n";
+    $log .= "Loading config 'XenTestConfig'\n";
+    $log .= "Adding config xen_server = 'http://Xen/'\n";
+    $log .= "Adding config credential = 'test'\n";
+    $log .= "----------------------------------------------------------------------------------------------------\n";
+    $log .= "Rebooting VM '" . $::opts->{xen_vmname} . "'...\n";
+    $log .= "VM successfully rebooted.\n";
+    return $log;
+}
+
+1;

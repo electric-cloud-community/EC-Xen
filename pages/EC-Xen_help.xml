@@ -1,0 +1,1253 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="generator" content="HTML Tidy for Windows (vers 25 March 2009), see www.w3.org" />
+  <meta content="text/html; charset=us-ascii" http-equiv="content-type" />
+
+  <title>ElectricFlow Plugin for Xen Cloud Platform</title>
+  <link rel="stylesheet" href="../../plugins/@PLUGIN_KEY@/pluginhelp.css" type="text/css" media="screen" />
+</head>
+
+<body>
+  <div class="help">
+    <h1>Xen Cloud Platform</h1>
+
+    <p>Plugin Version @PLUGIN_VERSION@</p>
+    <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade" />
+    <!-- The tool description should answer these kinds of questions:
+What is the tool itself is used for in the development
+process? Who would use this tool? What is the general use-case or
+problem that this tool solves? Look at the tool's documentation or
+website(s) to get their own descriptions. Look at Wikipedia or other
+outside websites. If there is a Hudson plugin, read their
+documentation for ideas, examples, etc. It's OK to copy word-for-word
+only if appropriate, such as FOSS - but not commercial software.
+-->
+
+    <p>The Xen Cloud Platform (XCP) is an open source
+    enterprise-ready server virtualization and cloud computing
+    platform, delivering the Xen Hypervisor with support for a
+    range of guest operating systems including Windows and Linux
+    network and storage support, management tools in a single,
+    tested installable image, which is also called XCP
+    appliance.</p>
+
+    <p>XCP addresses the needs of cloud providers, hosting services
+    and data centers by combining the isolation and multi-tenancy
+    capabilities of the Xen hypervisor with enhanced security,
+    storage and network virtualization technologies to offer a rich
+    set of virtual infrastructure cloud services. The platform also
+    address user requirements for security, availability,
+    performance and isolation across both private and public
+    clouds.</p>
+
+    <p>XCP consolidates server workloads, enables savings in power,
+    cooling, and management costs and thus contributing to
+    environmentally sustainable computing, an increased ability to
+    adapt to ever-changing IT environments, an optimized use of
+    existing hardware, and an improved level of IT reliability.</p>
+
+    <h2>Xen Cloud Platform Links</h2>
+
+    <p>More information can be found at <a href="http://xen.org/">Xen website</a>, <a href="http://xen.org/support/documentation.html">Xen
+    Documentation</a> or <a href="http://xen.org/files/XenCloud/sdk.pdf">Xen Cloud Platform SDK
+    Guide</a> .</p>
+
+    <p>Check the Xen API Guide at <a href="http://wiki.xensource.com/xenwiki/XAPI_Developer_Guide">XAPI
+    DeveloperGuide</a>.</p>
+
+    <h2>ElectricFlow Integration to Xen Cloud Platform</h2>
+    <!-- The integration description should answer the questions:
+How deep does our integration go? Why should I care? What general
+functionality does the plugin include? What functionality does
+the plugin omit?
+-->
+
+    <p>The plugin communicates with XCP through Xen application
+    programming interface (XAPI or XenAPI) which provides support
+    for developers to manage VMs, storage, networking, host
+    configuration and pools. API calls make use of the XML-RPC
+    protocol to transmit requests and responses over the network.
+    EC-vCloudDirector plugin provides a more generic interface for
+    managing resources.</p>
+
+    <p>The XML-RPC API server executing on the host accepts secure
+    socket connections. This allows a client to execute the APIs
+    over the https protocol. This provides secure and authenticated
+    access to the Xen Cloud Platform installation.</p>
+
+    <p>The plugin interact with XenAPI using PERL to perform the
+    following tasks:</p>
+
+    <ul>
+      <li>Create configuration to hold connection information.</li>
+
+      <li>Query for virtual machines information.</li>
+
+      <li>Perform actions on machines.</li>
+
+      <li>Clone, Suspend, cleanup, and deploy VMs...</li>
+
+      <li>Create ElectricFlow resources.</li>
+    </ul>
+
+    <p>This plugin provides two primary actions: Provision and
+    Cleanup, which work as a pair within a job.</p>
+
+    <h2>Integrated Version</h2>
+
+    <p>This plugin was developed and tested against Xen Cloud
+    Platform version 1.1.0</p>
+
+    <p>ElectricFlow minimum version 3.6</p>
+
+    <h1>Plugin Procedures</h1>
+
+    <p>IMPORTANT: For all parameter descriptions below, required
+    parameters are shown in <span class="required">bold
+    italics</span>.</p>
+
+    <div id="CreateConfiguration"><a name="CreateConfiguration" id="CreateConfiguration"></a>
+
+    <h3>Plugin Configuration</h3>
+    <!-- If the plugin has separate configurations then include this section,
+otherwise omit this whole section. We don't need to have a configuration
+section that just says "There is no configuration for this plugin."
+-->
+
+    <p>Plugin configurations are sets of parameters that apply
+    across some or all of the plugin's procedures. They are
+    intended to reduce repetition of common values, create
+    predefined sets of parameters for end users, and to securely
+    store credentials where needed. Each configuration is given a
+    unique name that is entered in designated parameters on
+    procedures that use them.<br />
+    <br />
+    Plugin configurations are created by going to the Electric
+    Commander "Administration" tab, then to the "Plugins" sub-tab.
+    On the right side of the line for the EC-Xen plugin, there is a
+    "Configure" link which will open the Configuration page.</p>
+    <!-- For all parameters, the parameter name should be *exactly* the same as it appears in the
+    Parameter Panel, and the first sentence(s) of the description should be
+    the same as the tooltip (if there is one). After that, the parameter
+    description can go into greater detail about the parameter including
+    valid value ranges and examples.
+    -->
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Configuration Name</td>
+
+          <td>Provide a unique name for the connection, keeping in
+          mind that you may need to create additional connections
+          over time. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Xen Hostname</td>
+
+          <td>Provide the host name or IP address of the Xen
+          server. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Configuration Credential
+          Parameters</td><!-- Describe *exactly* which user name and password go here.
+Is it for a particlar machine? Is it for a website? Is it for a
+particular function in the tool? Does it depend on another
+parameter (like a machine name) for its meaning?
+-->
+
+          <td>Xen Cloud Platform account username/password. This
+          account must have enough privileges to perform API
+          functions. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Debug Level</td>
+
+          <td>Level for output: 0=errors only, 1=normal headers and
+          responses, 2+=debugging information included.
+          (Required)</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/configuration_panel.png" /></div>
+
+    <div id="Provision"><a name="Provision" id="Provision"></a>
+
+    <h3>Provision</h3>
+
+    <p>This procedure allows users to instantiate a VM template and
+    start it using the Xen API. Run this procedure to create and
+    start a new VM and create resources for its machines.<br />
+    Value for "VM Template" must be the name of an existing
+    Template in the Server. The plugin will store properties on the
+    ElectricFlow server at the location provided in "Results
+    location"/"Provision tag"; the default location in the job
+    (/myJob/Xen/vms/"Provision tag") is used if "Results location"
+    is blank.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Template</td>
+
+          <td>Name of an existing Template in Xen. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Number Of Machines</td>
+
+          <td>Number of virtual machines to provision. If more than
+          one, a suffix (_#) is added to vm names (default is
+          1).</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Name</td>
+
+          <td>Name of the virtual machine to be created.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Network Name</td>
+
+          <td>Name of the network to be used. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Results Location</td>
+
+          <td>The ElectricFlow location to store properties
+          (default is /myJob/Xen/vms).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Provision Tag</td>
+
+          <td>The unique tag for this provision to keep it separate
+          from other provisions stored in the same location
+          (default is $[jobStepId]). (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Workspace</td>
+
+          <td>The ElectricFlow workspace the resource should
+          use.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Create Resource?</td>
+
+          <td>Create resources for created VMs? (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Resource Pool(s)</td>
+
+          <td>The ElectricFlow resource pool names to be
+          associated with the machines in this configuration if
+          resources are created(Space separated list).</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/provision_panel.png" /></div>
+
+    <div id="Cleanup"><a name="Cleanup" id="Cleanup"></a>
+
+    <h3>Cleanup</h3>
+
+    <p>This procedure allows users to cleanup VMs using the Xen
+    API. It Shuts down and optionally delete a VM. Existing
+    Commander resources associated with VMs will be deleted.<br />
+    The procedure will get the provision results from "Deployed
+    Results location"/"Deployed tag" for a VMs to cleanup. If the
+    "Deployed Results location" field is blank, it will look up for
+    VMs using "VM Name" parameter.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Deployed Location</td>
+
+          <td>The ElectricFlow location to get properties
+          (default is /myJob/Xen/vms).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Deployed tag</td>
+
+          <td>The unique tag for this cleanup (default is
+          $[jobStepId]). (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Number Of Machines</td>
+
+          <td>Number of virtual machines to cleanup. If more than
+          one, a suffix (_#) is added to vm names (default is
+          1).</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Name</td>
+
+          <td>Name of the new virtual machine to cleanup.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Delete VM?</td>
+
+          <td>Delete the VM from the server including storage
+          associated. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/cleanup_panel.png" /></div>
+
+    <div id="Clone"><a name="Clone" id="Clone"></a>
+
+    <h3>Clone</h3>
+
+    <p>Clones the specified VM, making a new VM. Clone
+    automatically exploits the capa- bilities of the underlying
+    storage repository in which the VM's disk images are stored
+    (e.g. Copy on Write). This function can only be called when the
+    VM is in the Halted State.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM to Clone</td>
+
+          <td>Name of the Original Virtual machine to clone.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Number Of Clones</td>
+
+          <td>Number of virtual machines to clone. If more than
+          one, a suffix (_#) is added to vm names (default is
+          1).</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Name</td>
+
+          <td>Name of the new virtual machine to be created.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Results Location</td>
+
+          <td>The ElectricFlow location to store properties
+          (default is /myJob/Xen/vms).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Results tag</td>
+
+          <td>The unique tag for this clone to keep it separate
+          from other clones stored in the same location (default is
+          $[jobStepId]). (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Workspace</td>
+
+          <td>The ElectricFlow workspace the resource should
+          use.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Create Resource?</td>
+
+          <td>Create resources for created VMs? (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Resource Pool(s)</td>
+
+          <td>The ElectricFlow resource pool names to be
+          associated with the machines in this configuration if
+          resources are created(Space separated list).</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/clone_panel.png" /></div>
+
+    <div id="CreateResourceFromVM"><a name="CreateResourceFromVM" id="CreateResourceFromVM"></a>
+
+    <h3>CreateResourceFromVM</h3>
+
+    <p>This procedure allows the user to create a resource for a
+    virtual machine. Created resources will use the "Workspace" and
+    will be assigned to "Resource Pool(s)", if "Workspace" is
+    blank, default workspace will be used, if "Resource Pool(s)" is
+    blank, resources will be assigned to "EC-$[JobStepId]" pool.
+    The plugin will set properties on the ElectricFlow server
+    using the values from "Results Location" and "Results Tag".
+    Users can set the location where they want properties to be
+    stored by specifying the "Results Location" field, if this
+    field is blank, the default location in the job is used:
+    /myJob/Xen/vms. When this procedure is executed, properties
+    will be stored in "Results Location"/"Results Tag".</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Number Of Machines</td>
+
+          <td>Number of virtual machines to create resources. If
+          more than one, a suffix (_#) is added to vm names
+          (default is 1).</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Name</td>
+
+          <td>Name of the virtual machine to create the resource.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Results Location</td>
+
+          <td>The ElectricFlow location to store properties
+          (default is /myJob/Xen/vms).</td>
+        </tr>
+
+        <tr>
+          <td class="required">Results Tag</td>
+
+          <td>The unique tag for this execution (default is
+          $[jobStepId]). (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Workspace</td>
+
+          <td>The ElectricFlow workspace the resource should
+          use.</td>
+        </tr>
+
+        <tr>
+          <td>Resource Pool(s)</td>
+
+          <td>The ElectricFlow resource pool names to be
+          associated with the machines in this configuration if
+          resources are created(Space separated list).</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/createresource_panel.png" /></div>
+
+    <div id="Start"><a name="Start" id="Start"></a>
+
+    <h3>Start</h3>
+
+    <p>This procedure starts the specified VM.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Number Of Machines</td>
+
+          <td>Number of virtual machines to start. If more than
+          one, a suffix (_#) is added to vm names (default is
+          1).</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Name</td>
+
+          <td>Name of the virtual machine to be started.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/start_panel.png" /></div>
+
+    <div id="Shutdown"><a name="Shutdown" id="Shutdown"></a>
+
+    <h3>Shutdown</h3>
+
+    <p>This procedure shuts down the specified VM. In order to
+    perform a clean shutdown XenTools must be installed on the
+    VM.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Number Of Machines</td>
+
+          <td>Number of virtual machines to shutdown. If more than
+          one, a suffix (_#) is added to vm names (default is
+          1).</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Name</td>
+
+          <td>Name of the virtual machine to shutdown.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Hard Shutdown?</td>
+
+          <td>Stop executing the specified VM without attempting a
+          clean shutdown. Then performpoweroff action.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/shutdown_panel.png" /></div>
+
+    <div id="Reboot"><a name="Reboot" id="Reboot"></a>
+
+    <h3>Reboot</h3>
+
+    <p>This procedure attempts to cleanly shutdown the specified
+    VM. Once shutdown has been completed perform reboot action
+    specified in guest configuration. In order to perform a clean
+    shutdown XenTools must be installed on the VM.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Number Of Machines</td>
+
+          <td>Number of virtual machines to reboot. If more than
+          one, a suffix (_#) is added to vm names (default is
+          1).</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Name</td>
+
+          <td>Name of the virtual machine to reboot.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Hard Reboot?</td>
+
+          <td>Stop executing the specified VM without attempting a
+          clean shutdown. Then performreboot action.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/reboot_panel.png" /></div>
+
+    <div id="Pause"><a name="Pause" id="Pause"></a>
+
+    <h3>Pause</h3>
+
+    <p>This procedure pause the specified VM.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Number Of Machines</td>
+
+          <td>Number of virtual machines to pause. If more than
+          one, a suffix (_#) is added to vm names (default is
+          1).</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Name</td>
+
+          <td>Name of the virtual machine to be paused.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/pause_panel.png" /></div>
+
+    <div id="Unpause"><a name="Unpause" id="Unpause"></a>
+
+    <h3>Unpause</h3>
+
+    <p>This procedure resume the specified VM. This can only be
+    called when the specified VM is in the Paused state.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Number Of Machines</td>
+
+          <td>Number of virtual machines to unpause. If more than
+          one, a suffix (_#) is added to vm names (default is
+          1).</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Name</td>
+
+          <td>Name of the virtual machine to be unpaused.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/unpause_panel.png" /></div>
+
+    <div id="Suspend"><a name="Suspend" id="Suspend"></a>
+
+    <h3>Suspend</h3>
+
+    <p>This procedure sspends the specified VM to disk.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Number Of Machines</td>
+
+          <td>Number of virtual machines to suspend. If more than
+          one, a suffix (_#) is added to vm names (default is
+          1).</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Name</td>
+
+          <td>Name of the virtual machine to suspend.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/suspend_panel.png" /></div>
+
+    <div id="Resume"><a name="Resume" id="Resume"></a>
+
+    <h3>Resume</h3>
+
+    <p>Awaken the specified VM and resume it. This can only be
+    called when the specified VM is in the Suspended state.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Number Of Machines</td>
+
+          <td>Number of virtual machines to resume. If more than
+          one, a suffix (_#) is added to vm names (default is
+          1).</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Name</td>
+
+          <td>Name of the virtual machine to be resumed.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Start Paused?</td>
+
+          <td>Start the VM in paused state.</td>
+        </tr>
+
+        <tr>
+          <td>Force?</td>
+
+          <td>Force Resume operation.</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/resume_panel.png" /></div>
+
+    <div id="Destroy"><a name="Destroy" id="Destroy"></a>
+
+    <h3>Destroy</h3>
+
+    <p>This procedure destroys the specified VM. The VM is
+    completely removed from the system.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Number Of Machines</td>
+
+          <td>Number of virtual machines to destroy. If more than
+          one, a suffix (_#) is added to vm names (default is
+          1).</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Name</td>
+
+          <td>Name of the virtual machine to be destroyed.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td>JobStep Timeout</td>
+
+          <td>Timeout for the step execution in minutes. Blank
+          means no timeout.</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/destroy_panel.png" /></div>
+
+    <div id="CloudManagerGrow"><a name="CloudManagerGrow" id="CloudManagerGrow"></a>
+
+    <h3>CloudManagerGrow</h3>
+
+    <p>This procedure allows the plugin to work with CloudManager
+    plugin; it calls Provision procedure and is intended to be run
+    by CloudManager.<br />
+    Value for "VM Template" must be the name of an existing
+    Template in the Server. The plugin will store properties on the
+    ElectricFlow server at the default location in the job
+    (/myJob/Xen/vms/"Provision tag").</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration:</td>
+
+          <td>The name of the configuration which holds all the
+          connection information for Xen. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Template:</td>
+
+          <td>Name of an existing Template in Xen. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Number:</td>
+
+          <td>Number of new servers. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">VM Name:</td>
+
+          <td>Name of the virtual machine to be created.
+          (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Network Name:</td>
+
+          <td>Name of the network to be used. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">Provision Tag:</td>
+
+          <td>The unique tag for this provision to keep it separate
+          from other provisions stored in the same location
+          (default is $[jobStepId]). (Required)</td>
+        </tr>
+
+        <tr>
+          <td>Workspace:</td>
+
+          <td>The ElectricFlow workspace the resource should
+          use.</td>
+        </tr>
+
+        <tr>
+          <td class="required">Resource Pool:</td>
+
+          <td>Pool name for resources. (Required)</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/cloudmanager_grow_panel.png" /></div>
+
+    <div id="CloudManagerShrink"><a name="CloudManagerShrink" id="CloudManagerShrink"></a>
+
+    <h3>CloudManagerShrink</h3>
+
+    <p>This procedure allows the plugin to work with CloudManager
+    plugin; it calls Cleanup procedure and is intended to be run by
+    CloudManager.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">List of Deployments</td>
+
+          <td>A list of deployments (previously created by
+          CloudManagerGrow) to stop. (Required)</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/cloudmanager_shrink_panel.png" /></div>
+
+    <div id="CloudManagerSync"><a name="CloudManagerSync" id="CloudManagerSync"></a>
+
+    <h3>CloudManagerSync</h3>
+
+    <p>This procedure allows the plugin to work with CloudManager
+    plugin; it checks vm state and is intended to be run by
+    CloudManager.</p>
+
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+
+          <th>Description</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td class="required">Xen Configuration</td>
+
+          <td>Name of the configuration which holds the connection
+          information for Xen. This must reference a valid existing
+          configuration. (Required)</td>
+        </tr>
+
+        <tr>
+          <td class="required">List of Deployments</td>
+
+          <td>A list of deployments (previously created by
+          CloudManagerGrow) to check. (Required)</td>
+        </tr>
+      </tbody>
+    </table><img alt="" src="../../plugins/@PLUGIN_KEY@/images/parameters/cloudmanager_shrink_panel.png" /></div>
+
+    <h1>Use Cases and Examples</h1>
+    <!-- This section is for examples and use cases, including screenshots of the new Parameter Panel with example values filled in.
+Unfortunately, I can't tell you what exactly to put here, but it's OK to put what seems like too much! Include both parameter
+values and output where appropriate. Use a separate 'h2' header for each example. Under the h2 header try to stay with the style
+outline used above where possible.
+-->
+
+    <h2>Use Case 1: Provision, Consume &amp; Cleanup Job</h2>
+
+    <p>Provision and cleanup work as a pair within a job.</p>
+
+    <p>The most common use for this plugin is to create a VM, then
+    create an ElectricFlow resources assigned to the virtual
+    machines, use the resource(s) to run some operations, and the
+    delete the resource and the VM. To accomplish these tasks you
+    must:</p>
+
+    <ol>
+      <li>Create a Plugin Configuration.</li>
+
+      <li>Provision a Xen VM.</li>
+
+      <li>Create a Resource(s) for this provision.</li>
+
+      <li>Use the created resource(s).</li>
+
+      <li>Delete the resource(s).</li>
+
+      <li>Delete the provisioned VM.</li>
+    </ol>
+
+    <h4>Create a Plugin Configuration</h4>
+
+    <p>Plugin configurations are created by going to the Electric
+    Commander "Administration" tab, then to the "Plugins" sub-tab.
+    On the right side of the line for the EC-Xen plugin, there is a
+    "Configure" link which will open the Configuration page.<br />
+    Create a new configuration by specifying the requested
+    parameters:</p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/create_config.png" />
+
+    <p>Once the configuration is created, you can see it listed in
+    "Xen Configurations", and now you are able to provision a new
+    VM.</p>
+
+    <h4>Provision</h4>
+
+    <p>Create a new Provision procedure, fill in the requested
+    parameters with real values from your Xen Cloud Platform
+    server:</p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/provision_parameters.png" />
+
+    <h4>Consume</h4>
+
+    <p>Create a new command step to use the created resource, in
+    this example we will pick a resource from the pool and just add
+    an ec-perl sleep to use it for 30 seconds</p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/consume_parameters.png" />
+
+    <h4>Cleanup</h4>
+
+    <p>Now the resource has been used and is ready to be cleaned
+    up, create a Cleanup step, fill in the requested
+    parameters:</p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/cleanup_parameters.png" />
+
+    <h4>Results and outputs</h4>
+
+    <p>Once the job finished, you can see properties stored in
+    "Results Location".<br />
+    <img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/job.png" /></p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/results.png" />
+
+    <p>Provision output:</p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/provision_log.png" />
+
+    <p>Cleanup output:</p><img alt="" src="../../plugins/@PLUGIN_KEY@/images/use_cases/Case_1/cleanup_log.png" />
+
+    <h1>Release Notes</h1>
+	<h2>@PLUGIN_KEY@ 1.2.1</h2>
+    <ul>
+        <li>Fixed issue with configurations being cached for IE.</li>
+    </ul>
+
+     <!-- Specific descriptions of additional or changed functionality,
+    new parameters, etc. The plugin version header of this section should
+    include the speciic build number if possible. Repeat this section for
+    each version.
+    -->
+    <h2>@PLUGIN_KEY@-1.2.0</h2>
+
+	<ul>
+		<li>Added CloudManagerSync procedure.</li>
+	</ul>
+    
+	<h2>@PLUGIN_KEY@-1.1.4</h2>
+
+	<ul>
+		<li>Procedure name(s) were changed in the step picker section.</li>
+	</ul>
+    
+    <h2>@PLUGIN_KEY@-1.1.3</h2>
+   
+
+    <ul>
+      <li>Fixed configuration description.</li>
+    </ul>
+
+    <h2>@PLUGIN_KEY@-1.1.1</h2>
+
+    <ul>
+      <li>Change Help page style.</li>
+    </ul>
+
+    <h2>EC-Xen-1.1.0(This version was not officially
+    released.)</h2>
+
+    <ul>
+      <li>Added Procedures: CloudManagerGrow and
+      CloudManagerShrink.</li>
+
+      <li>Applied new help page template.</li>
+
+      <li>Added help page lik to all procedures.</li>
+
+      <li>Added detailed Use Cases.</li>
+
+      <li>Added procedures to stepPicker</li>
+    </ul>
+
+    <h2>EC-Xen-1.0.0(This version was not officially
+    released.)</h2>
+
+    <ul>
+      <li>Configuration Management.</li>
+
+      <li>Procedures: Provision, Clone, Cleanup,
+      CreateResourceFromVM, Start, Shutdown, Reboot, Pause,
+      Unpause, Suspend,Resume and Destroy.</li>
+
+      <li>Implemented XML parameter panel</li>
+    </ul>
+  </div>
+</body>
+</html>
